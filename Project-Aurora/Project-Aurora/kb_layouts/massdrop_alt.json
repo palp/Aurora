@@ -1,0 +1,149 @@
+﻿{
+  "keys_to_remove": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    71,
+    73,
+    74,
+    75,
+    77,
+    90,
+    91,
+    92,
+    93,
+    99,
+    100,
+    101,
+    105,
+    106
+
+  ],
+  "key_modifications": {
+    "30": {
+      "tag": 30,
+      "line_break": true,
+      "margin_left": 7.0
+    },
+
+    "51": {
+      "margin_left": 7,
+      "line_break": true
+    },
+
+    //ENTER
+    "72": {
+      "tag": 72,
+      "line_break": true,
+      "margin_left": 7.0,
+      "margin_top": 0,
+      "width": 76.0,
+      "height": 30.0,
+      "font_size": 12.0
+    },
+    //"73": {
+    //  "margin_left": 7
+    //},
+    ////number 6
+    //"75": {
+    //  "line_break": true
+    //},
+    //left shift
+    "76": {
+      "tag": 76,
+      "margin_left": 0.0,
+      "margin_top": 0.0,
+      "width": 77.0,
+      "height": 30.0,
+      "font_size": 12.0
+    },
+
+    //right shift
+    "88": {
+      "tag": 88,
+      "line_break": null,
+      "width": 57
+    },
+
+    //"↑"
+    "89": {
+      "tag": 89,
+      "line_break": true,
+      "margin_left": 7
+    },
+    "90": {
+      "margin_left": 7.0
+    },
+    ////Number enter
+    //"93": {
+    //  "line_break": true
+    //},
+    //LeftControl
+    "94": {
+      "tag": 94,
+      "width": 42
+    },
+    "95": {
+      "tag": 95,
+      "width": 42
+    },
+    "96": {
+      "tag": 96,
+      "margin_left": 7,
+      "width": 42
+    },
+    "97": {
+      "tag": 97,
+      "width": 215
+    },
+    "98": {
+      "tag": 98,
+      "margin_left": 7,
+      "width": 42
+    },
+    "102": {
+      "tag": 102,
+      "margin_left": 72.0
+    },
+    "104": {
+      "tag": 104,
+      "line_break": true
+    }
+  },
+
+  "included_features": [
+    "massdrop_alt_top_features.json",
+    "massdrop_alt_right_features.json",
+    "massdrop_alt_bottom_features.json",
+    "massdrop_alt_left_features.json"
+  ]
+}
