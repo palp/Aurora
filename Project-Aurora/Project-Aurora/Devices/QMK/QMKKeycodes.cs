@@ -398,6 +398,12 @@ namespace Aurora.Devices.QMK
         public static readonly Dictionary<DK, int> LEDMappings = new Dictionary<DK, int>
         {
             { DK.FN_Key, 63},
+            { DK.LEFT_SHIFT, 44 },
+            { DK.RIGHT_SHIFT, 55 },
+            { DK.LEFT_ALT, 60 },
+            { DK.RIGHT_ALT, 62 },
+            { DK.LEFT_CONTROL, 58 },
+            { DK.LEFT_WINDOWS, 59 },
             { DK.ADDITIONALLIGHT1, 67 },
             { DK.ADDITIONALLIGHT2, 68 },
             { DK.ADDITIONALLIGHT3, 69 },
@@ -435,7 +441,7 @@ namespace Aurora.Devices.QMK
             { DK.PERIPHERAL_LIGHT3, 101 },
             { DK.PERIPHERAL_LIGHT4, 102 },
             { DK.PERIPHERAL_LIGHT5, 103 },
-            { DK.PERIPHERAL_LIGHT6, 104 }
+            { DK.PERIPHERAL_LIGHT6, 104 },
         };
     }
 }

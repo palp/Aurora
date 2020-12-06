@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
@@ -63,7 +63,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Bloody.NET" Version="1.0.4"/>
+	<PackageReference Include="Bloody.NET" Version="1.0.4" />
     <PackageReference Include="Colore" Version="5.2.0" />
     <PackageReference Include="CorsairRGB.NET" Version="1.1.0" />
     <PackageReference Include="CS-Script" Version="3.30.0" />
@@ -73,6 +73,7 @@
     <PackageReference Include="Infragistics.Themes.MetroDark.Wpf" Version="1.0.0" />
     <PackageReference Include="IronPython" Version="2.7.8.1" />
     <PackageReference Include="JsonSubTypes" Version="1.7.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
     <PackageReference Include="MouseKeyHook" Version="5.6.0" />
     <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

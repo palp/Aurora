@@ -1,4 +1,5 @@
 ﻿using Aurora.Devices.UnifiedHID;
+using Aurora.Utils;
 using HidLibrary;
 using System;
 using System.Collections.Concurrent;
@@ -10,11 +11,22 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Aurora.Devices.QMK
 {
     class MassdropAlt : UnifiedBase
     {
+        enum FeatureReportIds : byte
+        {
+            Attributes = 0x01,
+            AttributesRequest,
+            AttributesResponse,
+            MultiUpdate,
+            RangeUpdate,
+            Control
+        }
+
         private static HidDevice ctrl_device;
         private static HidDevice ctrl_device_leds;
         private CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -22,12 +34,15 @@ namespace Aurora.Devices.QMK
         private readonly Stopwatch stopwatch = new Stopwatch();
         public long LastUpdateMillis { get; private set; }
         public bool Active { get; private set; }
+        private Windows.Devices.Lights.LampArray lampArray;
+
 
 
         private readonly ConcurrentQueue<Dictionary<DeviceKeys, Color>> colorQueue = new ConcurrentQueue<Dictionary<DeviceKeys, Color>>();
         private const int DiscountLimit = 2500;
         private const int DiscountTries = 3;
         private int disconnectCounter = 0;
+        private int reportMaxSize = 64;
 
 
         public MassdropAlt()
@@ -44,22 +59,46 @@ namespace Aurora.Devices.QMK
             {
                 return false;
             }
+
+
+            Task.Run(async () =>
+            {
+                var devices =
+                    await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(Windows.Devices.Lights.LampArray.GetDeviceSelector());
+                if (devices.FirstOrDefault() != null)
+                    lampArray = await Windows.Devices.Lights.LampArray.FromIdAsync(devices.FirstOrDefault().Id);
+            }).Wait();
+
+            var lShift = lampArray.GetIndicesForKey(Windows.System.VirtualKey.LeftShift);
+            var shift = lampArray.GetIndicesForKey(Windows.System.VirtualKey.Shift);
+
+            Console.WriteLine($"LShift: {lShift.FirstOrDefault()}");
+            Console.WriteLine($"Shift: {shift.FirstOrDefault()}");
+
+
+            return IsConnected = (lampArray != null);
+
             IEnumerable<HidDevice> devices = HidDevices.Enumerate(0x04D8, new int[] { 0xEED3 });
             try
             {
                 if (devices.Count() > 0)
                 {
-                    ctrl_device_leds = devices.First(dev => dev.Capabilities.UsagePage == 0x00BE && dev.Capabilities.Usage == 0x00EF);
+                    ctrl_device_leds = devices.First(dev => dev.Capabilities.UsagePage == 0x0059 && dev.Capabilities.Usage == 0x0001);
                     /*ctrl_device = devices.First(dev => dev.Capabilities.FeatureReportByteLength > 50);
                     ctrl_device.OpenDevice();*/
                     ctrl_device_leds.OpenDevice();
+                    reportMaxSize = ctrl_device_leds.Capabilities.FeatureReportByteLength - 1;
                     bool success = true;
-/*                    if (!success)
-                    {
-                        Global.logger.LogLine($"Roccat Tyon Could not connect\n", Logging_Level.Error);
-                        ctrl_device.CloseDevice();
-                        ctrl_device_leds.CloseDevice();
-                    }*/
+                    /*                    if (!success)
+                                        {
+                                            Global.logger.LogLine($"Roccat Tyon Could not connect\n", Logging_Level.Error);
+                                            ctrl_device.CloseDevice();
+                                            ctrl_device_leds.CloseDevice();
+                                        }*/
+
+
+                    ctrl_device_leds.WriteFeatureData(new byte[] { (byte)FeatureReportIds.Control, 0x00 });
+
                     Global.logger.LogLine($"Massdrop ALT Connected\n", Logging_Level.Info);
 
                     if (!tokenSource.IsCancellationRequested)
@@ -85,9 +124,13 @@ namespace Aurora.Devices.QMK
         {
             try
             {
+                lampArray = null;
+                /*
                 tokenSource.Cancel();
+                ctrl_device_leds.WriteFeatureData(new byte[] { (byte)FeatureReportIds.Control, 0x01 });
                 ctrl_device_leds.CloseDevice();
-                IsConnected = false;
+                IsConnected = false; */
+                
                 return true;
             } 
             catch (Exception exc)
@@ -170,7 +213,7 @@ namespace Aurora.Devices.QMK
                                     ledColors.Add(led, color.Value);
                                 else ledColors[led] = color.Value;
                             }
-
+                            
                             else if (QMKKeycodes.KeyMappings.ContainsKey(color.Key))
                             {
                                 var keycode = Convert.ToByte(QMKKeycodes.KeyMappings[color.Key]);
@@ -184,23 +227,12 @@ namespace Aurora.Devices.QMK
                 }
             }
 
-            return await SetColorsInternal(ledColors, 0xC4) && await SetColorsInternal(keyColors, 0xC5);            
+            return SetLampsFeature(ledColors);
+//            return await SetColorsInternal(ledColors, SET_LED_COMMAND) && await SetColorsInternal(keyColors, SET_KEY_COMMAND);            
         }
 
 
-        public override bool SetLEDColour(DeviceKeys key, byte red, byte green, byte blue)
-        {
-            colorQueue.Enqueue(new Dictionary<DeviceKeys, Color> {{ key, Color.FromArgb(red, green, blue) }});
-            return true;
-        }
-
-        public override bool SetMultipleLEDColour(Dictionary<DeviceKeys, Color> keyColors)
-        {
-            colorQueue.Enqueue(keyColors);
-            return true;
-        }
-
-        private async Task<bool> SetColorsInternal(Dictionary<byte, Color> colors, byte valueId)
+        private bool SetLampsFeature(Dictionary<byte, Color> colors)
         {
             if (colors == null || !colors.Any())
                 return false;
@@ -208,40 +240,43 @@ namespace Aurora.Devices.QMK
             {
                 if (!this.IsConnected)
                     return false;
-                byte[] reportHeader = new byte[] { 0x07, valueId, 0x00 };
-                List<HidReport> reports = new List<HidReport>();
 
-                MemoryStream reportData = new MemoryStream(64);
-                reportData.Write(reportHeader, 0, 3);
-                int count = 0;
-                foreach (var color in colors)
+                List<byte[]> featureReports = new List<byte[]>();
+
+                int chunkSize = 8;
+                int processed = 0;
+                var chunk = colors.Take(chunkSize).ToArray();
+                while (chunk.Length > 0)
                 {
-                    if (count >= 60 / 4)
+                    int padding = Math.Max(0, 8 - chunk.Length);
+                    using (var reportStream = new MemoryStream(reportMaxSize))
                     {
-                        var report = new HidReport(64);
-                        report.ReportId = 0;
-                        report.Data = reportData.ToArray();
-                        report.Data[2] = Convert.ToByte(count);
-                        reports.Add(report);
-                        reportData = new MemoryStream(64);
-                        reportData.Write(reportHeader, 0, 3);
-                        count = 0;
+                        reportStream.WriteByte(0x04);
+                        reportStream.WriteByte(Convert.ToByte(chunk.Length));
+                        reportStream.WriteByte(0x00);
+                        foreach (var color in chunk)
+                        {
+                            reportStream.WriteByte(color.Key);
+                            reportStream.WriteByte(0x00);
+                        }
+                        reportStream.Seek(padding * 2, SeekOrigin.Current);
+
+                        foreach (var color in chunk)
+                        {
+                            reportStream.WriteByte(color.Value.R);
+                            reportStream.WriteByte(color.Value.G);
+                            reportStream.WriteByte(color.Value.B);
+                            reportStream.WriteByte(color.Value.A);
+                        }
+                        reportStream.Seek(padding * 4, SeekOrigin.Current);
+
+                        featureReports.Add(reportStream.ToArray());
+                        processed += chunk.Length;
                     }
-                    reportData.WriteByte(color.Value.R);
-                    reportData.WriteByte(color.Value.G);
-                    reportData.WriteByte(color.Value.B);
-                    reportData.WriteByte(color.Key);
-                    count++;                     
+                    chunk = colors.Skip(processed).Take(chunkSize).ToArray();
                 }
-
-                var finalReport = new HidReport(64);
-
-                finalReport.ReportId = 0;
-                finalReport.Data = reportData.ToArray();
-                finalReport.Data[2] = Convert.ToByte(count);
-                reports.Add(finalReport);
-
-                foreach (var report in reports) await ctrl_device_leds.WriteReportAsync(report);
+                featureReports.Last()[2] = 0x01;
+                foreach (var report in featureReports) ctrl_device_leds.WriteFeatureData(report);
                 return true;
             }
             catch (Exception exc)
@@ -250,6 +285,30 @@ namespace Aurora.Devices.QMK
                 return false;
             }
 
+        }
+
+        public override bool SetLEDColour(DeviceKeys key, byte red, byte green, byte blue)
+        {
+            if (QMKKeycodes.LEDMappings.ContainsKey(key))
+                lampArray.SetColorForIndex(QMKKeycodes.LEDMappings[key], Windows.UI.Color.FromArgb(255, red, green, blue));
+            else
+            {
+                var formsKey = KeyUtils.GetFormsKey(key);
+                if (formsKey == System.Windows.Forms.Keys.None)
+                    return false;
+
+                lampArray.SetColorsForKey(Windows.UI.Color.FromArgb(255, red, green, blue), (Windows.System.VirtualKey)formsKey);                
+            }
+            return true;
+        }   
+
+        public override bool SetMultipleLEDColour(Dictionary<DeviceKeys, Color> keyColors)
+        {
+            foreach (var item in keyColors)
+            {
+                SetLEDColour(item.Key, item.Value.R, item.Value.G, item.Value.B);
+            }
+            return true;
         }
 
         public virtual void Dispose()
