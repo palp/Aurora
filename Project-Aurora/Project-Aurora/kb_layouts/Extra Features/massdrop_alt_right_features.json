@@ -1,0 +1,149 @@
+{
+  "group_tag": "keyboard",
+  "origin_region": 2,
+  "grouped_keys": [
+    {
+      "visualName": "DEL",
+      "tag": 52,
+      "margin_left": -30.0,
+      "margin_top": 20.0,
+      "width": 30.0,
+      "height": 30.0,
+      "font_size": 9.0,
+      "width_bits": 3,
+      "height_bits": 3,
+      "margin_left_bits": -3,
+      "margin_top_bits": 1,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "Home",
+      "tag": 32,
+      "margin_left": -30.0,
+      "margin_top": 57.0,
+      "width": 30.0,
+      "height": 30.0,
+      "font_size": 9.0,
+      "width_bits": 3,
+      "height_bits": 3,
+      "margin_left_bits": -3,
+      "margin_top_bits": 1,
+      "enabled": true,
+      "absolute_location": true
+    },
+
+    {
+      "visualName": "PGUP",
+      "tag": 33,
+      "margin_left": -30.0,
+      "margin_top": 94.0,
+      "width": 30.0,
+      "height": 30.0,
+      "font_size": 9.0,
+      "width_bits": 3,
+      "height_bits": 3,
+      "margin_left_bits": -3,
+      "margin_top_bits": 1,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "PGDN",
+      "tag": 54,
+      "margin_left": -30.0,
+      "margin_top": 131.0,
+      "width": 30.0,
+      "height": 30.0,
+      "font_size": 9.0,
+      "width_bits": 3,
+      "height_bits": 3,
+      "margin_left_bits": -3,
+      "margin_top_bits": 1,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "FN",
+      "tag": 107,
+      "margin_left": -170.0,
+      "margin_top": 168.0,
+      "width": 42.0,
+      "height": 30.0,
+      "font_size": 12.0,
+      "width_bits": 4,
+      "height_bits": 3,
+      "margin_left_bits": -3,
+      "margin_top_bits": 1,
+      "enabled": true,
+      "absolute_location": true
+    },
+
+    {
+      "visualName": "",
+      "tag": 181,
+      "margin_left": 10.0,
+      "margin_top": 10.0,
+      "width": 10.0,
+      "height": 20,
+      "font_size": 12.0,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "",
+      "tag": 180,
+      "margin_left": 10.0,
+      "margin_top": 45.0,
+      "width": 10.0,
+      "height": 20,
+      "font_size": 12.0,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "",
+      "tag": 179,
+      "margin_left": 10.0,
+      "margin_top": 80.0,
+      "width": 10.0,
+      "height": 20,
+      "font_size": 12.0,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "",
+      "tag": 178,
+      "margin_left": 10.0,
+      "margin_top": 115.0,
+      "width": 10.0,
+      "height": 20,
+      "font_size": 12.0,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "",
+      "tag": 177,
+      "margin_left": 10.0,
+      "margin_top": 150.0,
+      "width": 10.0,
+      "height": 20,
+      "font_size": 12.0,
+      "enabled": true,
+      "absolute_location": true
+    },
+    {
+      "visualName": "",
+      "tag": 176,
+      "margin_left": 10.0,
+      "margin_top": 185.0,
+      "width": 10.0,
+      "height": 20,
+      "font_size": 12.0,
+      "enabled": true,
+      "absolute_location": true
+    }
+  ]
+}

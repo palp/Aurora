@@ -304,6 +304,9 @@ namespace Aurora.Settings
         [Description("HyperX Alloy Elite RGB")]
         HyperX_Alloy_Elite_RGB = 1400,
  
+        //QMK range is 1800-1899
+        [Description("Massdrop ALT")]
+        Massdrop_ALT = 1800
     }
 
     public enum PreferredKeyboardLocalization
